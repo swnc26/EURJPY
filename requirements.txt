@@ -1,1 +1,4 @@
-flask requests pandas yfinance
+flask
+requests
+pandas
+yfinance
