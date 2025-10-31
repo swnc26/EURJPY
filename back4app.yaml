@@ -1,0 +1,19 @@
+version: 1
+
+services:
+  eurjpy-flask-app:
+    type: container
+    env: python
+    dockerfile: Dockerfile
+    autoDeploy: true
+    ports:
+      - protocol: http
+        internalPort: 5000
+    envVars:
+      - key: PORT
+        value: "5000"
+      # Contoh tambahan (hapus jika tidak perlu)
+      # - key: TELEGRAM_TOKEN
+      #   value: "123456:ABC-xxxxxx"
+      # - key: API_KEY
+      #   value: "your-api-key-here"
