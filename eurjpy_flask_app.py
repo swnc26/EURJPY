@@ -215,5 +215,6 @@ def health():
 
 
 if __name__ == "__main__":
-    start_background()
-    app.run(host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 5000))  # Back4App akan set PORT otomatis
+    app.run(host="0.0.0.0", port=port)
+
