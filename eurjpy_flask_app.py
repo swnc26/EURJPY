@@ -29,6 +29,7 @@ logging.basicConfig(
 
 # ================= TELEGRAM =================
 def load_config():
+    """Muat konfigurasi bot dari config.json"""
     try:
         with open(CONFIG_FILE, "r") as f:
             return json.load(f)
@@ -38,6 +39,7 @@ def load_config():
 
 
 def send_telegram_message(token, chat_id, text):
+    """Kirim pesan ke Telegram"""
     try:
         url = f"https://api.telegram.org/bot{token}/sendMessage"
         payload = {"chat_id": chat_id, "text": text, "parse_mode": "Markdown"}
@@ -48,13 +50,15 @@ def send_telegram_message(token, chat_id, text):
 
 
 def send_status(token, chat_id, status):
+    """Kirim status bot"""
     now_local = datetime.now(timezone.utc).astimezone(TZ_OFFSET)
-    msg = f"*Bot Status:* {status}\nTime (WIB): {now_local.strftime('%Y-%m-%d %H:%M:%S')}"
+    msg = f"*Bot Status:* {status}\n🕒 Time (WIB): {now_local.strftime('%Y-%m-%d %H:%M:%S')}"
     send_telegram_message(token, chat_id, msg)
 
 
 # ================= DATA MARKET =================
 def get_price_data():
+    """Ambil data harga terbaru dari Yahoo Finance"""
     try:
         df = yf.download(PAIR, period="1d", interval=INTERVAL, progress=False, auto_adjust=True)
         return df if df is not None and len(df) > 20 else None
@@ -65,6 +69,7 @@ def get_price_data():
 
 # ================= ANALISA =================
 def analyze_signal(df):
+    """Analisa sinyal trading dari data harga"""
     close = df["Close"]
     high = df["High"]
     low = df["Low"]
@@ -146,14 +151,13 @@ async def bot_loop(token, chat_id, stop_flag):
                 send_telegram_message(token, chat_id, msg)
                 last_signal_time = now_utc
 
+            # Waktu sinyal berikut (setiap 5 menit)
             next_min = (now_utc.minute // 5 + 1) * 5
-            if next_min >= 60:
-                next_time = now_utc.replace(minute=0, second=0) + timedelta(hours=1)
-            else:
-                next_time = now_utc.replace(minute=next_min, second=0)
+            next_time = (now_utc.replace(minute=0, second=0) + timedelta(hours=1)) if next_min >= 60 \
+                        else now_utc.replace(minute=next_min, second=0)
             target_time = next_time - timedelta(seconds=10)
 
-            if now_utc >= target_time and now_utc - last_signal_time > timedelta(minutes=4):
+            if now_utc >= target_time and (now_utc - last_signal_time) > timedelta(minutes=4):
                 msg = (
                     f"📊 *AI EUR/JPY (Prediksi Candle 5m)*\n"
                     f"📈 Arah: {signal}\n"
@@ -182,6 +186,7 @@ stop_flag = None
 
 
 def start_background():
+    """Menjalankan loop analisa di thread terpisah"""
     global loop_thread, stop_flag
     if loop_thread and loop_thread.is_alive():
         return
@@ -205,6 +210,7 @@ def start_background():
 
 @app.route("/health")
 def health():
+    """Endpoint health check (Back4App akan cek ini)"""
     start_background()
     now = datetime.now(timezone.utc).astimezone(TZ_OFFSET)
     return jsonify({
@@ -214,7 +220,7 @@ def health():
     })
 
 
-
+# ================= ENTRY POINT =================
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))  # Back4App uses port 8080 by default
+    port = int(os.environ.get("PORT", 8080))  # Back4App uses 8080 by default
     app.run(host="0.0.0.0", port=port)
