@@ -1,20 +1,17 @@
 # syntax=docker/dockerfile:1
-
-# Gunakan base image Python
 FROM python:3.11-slim
 
-# Set direktori kerja di dalam container
 WORKDIR /app
 
-# Salin file requirements.txt dan install dependensi
+# install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Salin seluruh isi project ke dalam container
+# copy seluruh project
 COPY . .
 
-# Tentukan port yang digunakan aplikasi (5000 default Flask)
-EXPOSE 5000
+# gunakan port dinamis dari Back4App (tidak hardcoded)
+EXPOSE 8080
 
-# Jalankan aplikasi sesuai perintah di Procfile
+# jalankan aplikasi sesuai procfile
 CMD ["python", "eurjpy_flask_app.py"]
