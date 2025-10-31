@@ -3,19 +3,18 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# install dependensi sistem minimum (kadang pandas butuh lib tambahan)
+# Install dependensi sistem minimum
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc libpq-dev && rm -rf /var/lib/apt/lists/*
 
-# copy dan install requirements
+# Install dependensi Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# copy seluruh project
+# Salin seluruh project
 COPY . .
 
-# expose port (Back4App pakai env PORT, bukan fixed)
+# Port 8080 sesuai Back4App health check
 EXPOSE 8080
 
-# jalankan aplikasi Flask
 CMD ["python", "eurjpy_flask_app.py"]
