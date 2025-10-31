@@ -214,7 +214,7 @@ def health():
     })
 
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Back4App akan set PORT otomatis
-    app.run(host="0.0.0.0", port=port)
 
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))  # Back4App uses port 8080 by default
+    app.run(host="0.0.0.0", port=port)
